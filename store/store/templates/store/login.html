@@ -1,0 +1,11 @@
+{% extends 'store/main.html' %}
+
+{% block content %}
+    <!-- Contenido de la página de inicio de sesión -->
+    <h2>Iniciar sesión</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Iniciar sesión</button>
+    </form>
+{% endblock content %}
