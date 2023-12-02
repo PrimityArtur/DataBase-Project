@@ -49,24 +49,36 @@ def userPerfil(request, usuario_id):
 
 
 def carrito(request, usuario_id):
-    return render(request, 'index.html', {'usuario_id': usuario_id})
+    return render(request, 'shop/carrito.html', {'usuario_id': usuario_id})
 
 
 def crearSoporte(request, usuario_id):
-    return render(request, 'index.html', {'usuario_id': usuario_id})
+    return render(request, 'user/crearSoporte.html', {'usuario_id': usuario_id})
 
 
 def uRecibo(request, usuario_id):
-    return render(request, 'user/userPerfil.html', {'usuario_id': usuario_id})
+    return render(request, 'user/userRecibo.html', {'usuario_id': usuario_id})
 
 
 def uSoporte(request, usuario_id):
-    return render(request, 'user/userPerfil.html', {'usuario_id': usuario_id})
+    return render(request, 'user/userSoporte.html', {'usuario_id': usuario_id})
 
 
 def uProducto(request, usuario_id):
-    return render(request, 'user/userPerfil.html', {'usuario_id': usuario_id})
+    return render(request, 'user/userProducto.html', {'usuario_id': usuario_id})
 
 
 def editarProducto(request, usuario_id):
-    return render(request, 'index.html', {'usuario_id': usuario_id})
+    return render(request, 'user/editarProducto.html', {'usuario_id': usuario_id})
+
+
+def producto(request, usuario_id):
+    return render(request, 'shop/producto.html', {'usuario_id': usuario_id})
+
+
+def pago(request, usuario_id):
+    return render(request, 'shop/pago.html', {'usuario_id': usuario_id})
+
+
+def soporteRespuestas(request, usuario_id):
+    return render(request, 'user/soporteRespuestas.html', {'usuario_id': usuario_id})
