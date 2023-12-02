@@ -1,0 +1,19 @@
+<nav>
+    <ul>
+        <li>
+            <a href="{% url 'perfil' usuario_id %}">Info</a>
+        </li>
+        <li>
+            <a href="{% url 'uRecibo' usuario_id %}">Recibos</a>
+        </li>
+        <li>
+            <a href="{% url 'uSoporte' usuario_id %}">Soportes</a>
+        </li>
+        <li>
+            <a href="{% url 'uProducto' usuario_id %}">Productos</a>
+        </li>
+    </ul>
+</nav>
+
+{% block content %}
+{% endblock %}

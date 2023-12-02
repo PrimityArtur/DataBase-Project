@@ -1,0 +1,23 @@
+<nav>
+    <ul>
+        <li>
+            <a href="{% url 'perfil' usuario_id %}">Perfil</a>
+        </li>
+        <li>
+            <a href="{% url 'home' usuario_id %}">Home</a>
+        </li>
+        <li>
+            <a href="{% url 'carrito' usuario_id %}">Carrito</a>
+        </li>
+        <li>
+            <a href="{% url 'crearSoporte' usuario_id %}">CrearSoporte</a>
+        </li>
+        <li>
+            <a href="{% url 'editarProducto' usuario_id %}">editarProducto</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- decimos que hay mas codigo siguiente -->
+{% block content %}
+{% endblock %}

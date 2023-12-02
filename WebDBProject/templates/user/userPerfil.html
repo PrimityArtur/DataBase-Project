@@ -1,0 +1,23 @@
+{% include 'layouts/navbar.html' %}
+
+<!-- para el bloque que tiene base.html -->
+{% block content %}
+<h1> Welcome </h1>
+
+<div>
+
+    {% include 'layouts/UserNavBar.html' %}
+</div>
+
+{% for nombre in nombres %}
+<div>
+    <p>{{nombre.foto}}</p>
+    <p>{{nombre.nombre}} {{nombre.apellido}}</p>
+    <p>{{nombre.correo}}</p>
+    <p>{{nombre.fcha_rgstro}}</p>
+    <p>{{nombre.direccion}}</p>
+    <p>{{nombre.telefono}}</p>
+</div>
+{% endfor %}
+
+{% endblock %}
