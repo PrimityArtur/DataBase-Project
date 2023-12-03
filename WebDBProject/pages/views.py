@@ -92,7 +92,8 @@ def carrito(request, usuario_id):
             p.PRODUCTO_ID,
             p.NOMBRE,
             p.PRECIO,
-            t.TIPO
+            t.TIPO,
+            pcar.CANTIDAD
                                 
         FROM USUARIO u 
         JOIN COMPRADOR com 
@@ -118,12 +119,18 @@ def carrito(request, usuario_id):
         'producto_id' : producto_id,
         'nombre' : nombre ,
         'precio' : precio,
-        'tipo' : tipo
-    } for producto_id, nombre, precio, tipo in resultados]
+        'tipo' : tipo,
+        'cantidad' : cantidad
+    } for producto_id, nombre, precio, tipo, cantidad in resultados]
+
+    PrecioTotal = 0
+    for i in carrito:
+        PrecioTotal += i['precio']*i['cantidad']
 
     return render(request, 'shop/carrito.html', {
-    'usuario_id': usuario_id,
-    'carrito': carrito
+        'usuario_id': usuario_id,
+        'carrito': carrito,
+        'precioTotal' : PrecioTotal
     })
 
 
@@ -407,6 +414,8 @@ def producto(request, usuario_id, producto_id):
 
 
 def pago(request, usuario_id):
+
+
     return render(request, 'shop/pago.html', {'usuario_id': usuario_id})
 
 
