@@ -26,8 +26,10 @@ def home(request, usuario_id=None):
             ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
             JOIN VALORACION val
             ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+            JOIN VENDEDOR ven
+            ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
             JOIN USUARIO vu
-            ON (p.PRODUCTO_ID = vu.USUARIO_ID)
+            ON (ven.USUARIO_ID = vu.USUARIO_ID)
 
             GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.PRECIO, t.TIPO, vu.NOMBRE
         """)
@@ -93,7 +95,79 @@ def crearSoporte(request, usuario_id):
 
 
 def uRecibo(request, usuario_id):
-    return render(request, 'user/userRecibo.html', {'usuario_id': usuario_id})
+
+    cursor = connection.cursor().execute("""
+            SELECT 
+                r.RECIBO_ID,
+                r.FECHA,
+                pag.TOTAL,
+                mp.NOMBRE
+                                         
+            FROM USUARIO u 
+            JOIN COMPRADOR com 
+            ON (u.USUARIO_ID = com.USUARIO_ID)
+            JOIN RECIBO r 
+            ON (com.COMPRADOR_ID = r.COMPRADOR_ID)
+            JOIN PAGO pag 
+            ON (r.PAGO_ID = pag.PAGO_ID)
+            JOIN METODO_PAGO mp 
+            ON (pag.METODO_PAGO_ID = mp.METODO_PAGO_ID)
+
+            WHERE u.USUARIO_ID = :usuario_id
+                                         
+     """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()
+    recibos = [{
+        'recibo_id' : recibo_id,
+        'fecha' : fecha,
+        'total' : total,
+        'metodo_pago' : metodo_pago,
+    } for recibo_id, fecha, total, metodo_pago in resultados]
+
+    cursor = connection.cursor().execute("""
+        SELECT 
+            r.RECIBO_ID,
+            p.NOMBRE,
+            p.PRECIO,
+            pcar.CANTIDAD
+                                    
+        FROM USUARIO u 
+        JOIN COMPRADOR com 
+        ON (u.USUARIO_ID = com.USUARIO_ID)
+        JOIN CARRITO car 
+        ON (com.COMPRADOR_ID = car.COMPRADOR_ID)
+        JOIN PRDCTO_CRRTO pcar 
+        ON (car.CARRITO_ID = pcar.CARRITO_ID)
+        JOIN PRODUCTO p 
+        ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
+        JOIN RECIBO r 
+        ON (com.COMPRADOR_ID = r.COMPRADOR_ID)
+
+        WHERE u.USUARIO_ID = :usuario_id
+                                         
+     """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()
+    productosComprados = [{
+        'recibo_id' : recibo_id,
+        'nombre' : nombre ,
+        'precio' : precio,
+        'cantidad' : cantidad
+    } for recibo_id, nombre, precio, cantidad in resultados]
+
+    # Agrupar productos comprados dentro de cada recibo
+    for recibo in recibos:
+        recibo['productos'] = [
+            producto for producto in productosComprados
+            if producto['recibo_id'] == recibo['recibo_id']
+        ]
+
+        
+    return render(request, 'user/userRecibo.html', {
+        'usuario_id': usuario_id,
+        'recibos': recibos
+        })
 
 
 def uSoporte(request, usuario_id):
@@ -134,8 +208,10 @@ def producto(request, usuario_id, producto_id):
         ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
         JOIN VALORACION val
         ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+        JOIN VENDEDOR ven
+        ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
         JOIN USUARIO vu
-        ON (p.PRODUCTO_ID = vu.USUARIO_ID)
+        ON (ven.USUARIO_ID = vu.USUARIO_ID)
 
         GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.DESCRIPCION, p.PRECIO, p.FECHA, t.TIPO, plu.VERSION, sch.DIMENSIONES, vu.NOMBRE
         HAVING p.PRODUCTO_ID = :producto_id
@@ -166,8 +242,10 @@ def producto(request, usuario_id, producto_id):
         FROM PRODUCTO p 
         JOIN VALORACION val
         ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+        JOIN COMPRADOR com
+        ON (val.COMPRADOR_ID = com.COMPRADOR_ID)
         JOIN USUARIO cu
-        ON (val.COMPRADOR_ID = cu.USUARIO_ID)
+        ON (com.USUARIO_ID = cu.USUARIO_ID)
 
         WHERE p.PRODUCTO_ID = :producto_id
     """, {'producto_id' : producto_id})
@@ -180,7 +258,11 @@ def producto(request, usuario_id, producto_id):
             } 
             for comprador, comentario, estrellas in resultados]
     
-    return render(request, 'shop/producto.html', {'producto': Producto, 'comentarios' : comentarios, 'usuario_id': usuario_id})
+    return render(request, 'shop/producto.html', {
+        'producto': Producto, 
+        'comentarios' : comentarios, 
+        'usuario_id': usuario_id
+        })
 
 
 def pago(request, usuario_id):
