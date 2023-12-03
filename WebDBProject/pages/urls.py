@@ -21,6 +21,6 @@ urlpatterns = [
     path('pago/<int:usuario_id>', views.pago, name="pago"),
     
 
-    path('soporteRespuestas/<int:usuario_id>', views.soporteRespuestas, name="soporteRespuestas"),
+    path('soporteRespuestas/<int:usuario_id>/<int:soporte_id>', views.soporteRespuestas, name="soporteRespuestas"),
 
 ]

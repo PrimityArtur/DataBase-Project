@@ -171,7 +171,30 @@ def uRecibo(request, usuario_id):
 
 
 def uSoporte(request, usuario_id):
-    return render(request, 'user/userSoporte.html', {'usuario_id': usuario_id})
+    cursor = connection.cursor().execute("""
+        SELECT 
+            s.SOPORTE_ID,
+            s.MENSAJE,
+            s.FECHA
+                                        
+        FROM USUARIO u 
+        JOIN SOPORTE s 
+        ON (u.USUARIO_ID = s.USUARIO_ID)
+
+        WHERE u.USUARIO_ID = :usuario_id                  
+    """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()
+    soportes = [{
+        'soporte_id' : soporte_id,
+        'mensaje' : mensaje,
+        'fecha' : fecha
+    } for soporte_id, mensaje, fecha in resultados]
+
+    return render(request, 'user/userSoporte.html', {
+        'usuario_id': usuario_id,
+        'soportes': soportes
+        })
 
 
 def uProducto(request, usuario_id):
@@ -269,5 +292,42 @@ def pago(request, usuario_id):
     return render(request, 'shop/pago.html', {'usuario_id': usuario_id})
 
 
-def soporteRespuestas(request, usuario_id):
-    return render(request, 'user/soporteRespuestas.html', {'usuario_id': usuario_id})
+def soporteRespuestas(request, usuario_id, soporte_id):
+    cursor = connection.cursor().execute("""
+        SELECT 
+            s.MENSAJE,
+            s.FECHA,
+            res.MENSAJE,
+            res.FECHA,
+            res.TIPO,
+            u.NOMBRE,
+            uad.NOMBRE
+
+        FROM USUARIO u 
+        JOIN SOPORTE s 
+        ON (u.USUARIO_ID = s.USUARIO_ID)
+        JOIN RESPUESTA res 
+        ON (s.SOPORTE_ID = res.SOPORTE_ID)
+        LEfT OUTER JOIN ADMINISTRADOR ad 
+        ON (res.ADMINISTRADOR_ID = ad.ADMINISTRADOR_ID)
+        LEfT OUTER JOIN USUARIO uad 
+        ON (ad.USUARIO_ID = uad.USUARIO_ID)
+
+        WHERE s.SOPORTE_ID = :soporte_id               
+    """, {'soporte_id' : soporte_id})
+
+    resultados = cursor.fetchall()
+    respuestasSoporte = [{
+        'mensajeSoporte' : mensajeSoporte,
+        'fechaSoporte' : fechaSoporte,
+        'mensaje' : mensaje,
+        'fecha' : fecha,
+        'tipo' : tipo,
+        'usuario' : usuario,
+        'administrador' : administrador
+    } for mensajeSoporte, fechaSoporte, mensaje, fecha, tipo, usuario, administrador in resultados]
+
+    return render(request, 'user/soporteRespuestas.html', {
+        'usuario_id': usuario_id,
+        'respuestasSoporte': respuestasSoporte
+        })

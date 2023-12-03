@@ -4,3 +4,14 @@
 <div>
     {% include 'layouts/UserNavBar.html' %}
 </div>
+
+<div>
+    {% for soporte in soportes %}
+    <div>
+        <a href="{% url 'soporteRespuestas' usuario_id soporte.soporte_id %}">
+            <h3>{{soporte.mensaje}}</h3>
+        </a>
+        <p>Precio: {{soporte.fecha}} </p>
+    </div>
+    {% endfor %}
+</div>
