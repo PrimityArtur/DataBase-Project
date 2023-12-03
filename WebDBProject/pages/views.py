@@ -101,11 +101,11 @@ def carrito(request, usuario_id):
         ON (u.USUARIO_ID = com.USUARIO_ID)
         JOIN CARRITO car 
         ON (com.COMPRADOR_ID = car.COMPRADOR_ID)
-        JOIN PRDCTO_CRRTO pcar 
+        LEFT OUTER JOIN PRDCTO_CRRTO pcar 
         ON (car.CARRITO_ID = pcar.CARRITO_ID)
-        JOIN PRODUCTO p 
+        LEFT OUTER JOIN PRODUCTO p 
         ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
-        JOIN TIPO t 
+        LEFT OUTER JOIN TIPO t 
         ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
 
         WHERE u.USUARIO_ID = :usuario_id AND car.CARRITO_ID = (SELECT 
@@ -127,7 +127,8 @@ def carrito(request, usuario_id):
 
     PrecioTotal = 0
     for i in carrito:
-        PrecioTotal += i['precio']*i['cantidad']
+        if(i['precio']):
+            PrecioTotal += i['precio']*i['cantidad']
 
     return render(request, 'shop/carrito.html', {
         'usuario_id': usuario_id,
@@ -473,6 +474,13 @@ def pago(request, usuario_id, carrito_id, precioTotal):
                 '6' : comprador_id[0]
                 })
 
+            connection.cursor().execute("""
+                INSERT INTO CARRITO(COMPRADOR_ID, PRECIO_TOTAL) VALUES (:1, :2)
+            """, {
+                '1' : comprador_id[0], 
+                '2' : 0
+                })
+            
             return uRecibo(request, usuario_id)
     else:
         form = forms.CreatePago()

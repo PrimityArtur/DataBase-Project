@@ -2,6 +2,7 @@
 
 <div>
     {% for producto in carrito %}
+    {% if producto.producto_id %}
     <div>
         <a href="{% url 'producto' usuario_id producto.producto_id %}">
             <h2>{{producto.nombre}}</h2>
@@ -10,13 +11,16 @@
         <p>Tipo: {{producto.tipo}}</p>
         <p>Cantidad: {{producto.cantidad}}</p>
     </div>
+    {% endif %}
     {% endfor %}
     <h3>Total: {{precioTotal}}</h3>
     
 </div>
 
+{% if precioTotal != 0 %}
 <button>
     <a href="{% url 'pago' usuario_id carrito.0.carrito_id precioTotal %}">
         <h2>Pagar</h2>
     </a>
 </button>
+{% endif %}
