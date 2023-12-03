@@ -89,6 +89,7 @@ def userPerfil(request, usuario_id):
 def carrito(request, usuario_id):
     cursor = connection.cursor().execute("""
         SELECT 
+            car.CARRITO_ID,
             p.PRODUCTO_ID,
             p.NOMBRE,
             p.PRECIO,
@@ -116,12 +117,13 @@ def carrito(request, usuario_id):
     
     resultados = cursor.fetchall()
     carrito = [{
+        'carrito_id' : carrito_id,
         'producto_id' : producto_id,
         'nombre' : nombre ,
         'precio' : precio,
         'tipo' : tipo,
         'cantidad' : cantidad
-    } for producto_id, nombre, precio, tipo, cantidad in resultados]
+    } for carrito_id, producto_id, nombre, precio, tipo, cantidad in resultados]
 
     PrecioTotal = 0
     for i in carrito:
@@ -413,11 +415,111 @@ def producto(request, usuario_id, producto_id):
         })
 
 
-def pago(request, usuario_id):
+def pago(request, usuario_id, carrito_id, precioTotal):
+    if request.method == 'POST':
+        form = forms.CreatePago(request.POST)
+        if form.is_valid():
+            seleccion_usuario = form.cleaned_data['seleccion']
+
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    METODO_PAGO_ID
+                FROM METODO_PAGO
+                WHERE NOMBRE = :seleccion_usuario
+            """, { 
+                'seleccion_usuario': seleccion_usuario })
+            seleccion = cursor.fetchone()
+
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    c.COMPRADOR_ID
+                FROM COMPRADOR c
+                JOIN USUARIO u
+                ON c.USUARIO_ID = u.USUARIO_ID
+                WHERE u.USUARIO_ID = :usuario_id
+            """, { 
+                'usuario_id': usuario_id })
+            comprador_id = cursor.fetchone()
+
+            connection.cursor().execute("""
+                INSERT INTO PAGO(COMPRADOR_ID, METODO_PAGO_ID, TOTAL) VALUES (:1, :2, :3)
+            """, {
+                '1' : comprador_id[0], 
+                '2' : seleccion[0], 
+                '3' : precioTotal, 
+            })
 
 
-    return render(request, 'shop/pago.html', {'usuario_id': usuario_id})
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    MAX(p.PAGO_ID)
+                FROM COMPRADOR c
+                JOIN PAGO p
+                ON c.COMPRADOR_ID = p.COMPRADOR_ID
+                WHERE c.USUARIO_ID = :usuario_id
+            """, { 
+                'usuario_id': usuario_id })
+            pago_id = cursor.fetchone()
 
+            
+            connection.cursor().execute("""
+                INSERT INTO RECIBO(PAGO_ID, COMPRADOR_ID, CARRITO_ID, PAGO_COMPRADOR_ID, PAGO_METODO_PAGO_ID, CARRITO_COMPRADOR_ID) VALUES (:1, :2, :3, :4, :5, :6)
+            """, {
+                '1' : pago_id[0], 
+                '2' : comprador_id[0], 
+                '3' : carrito_id, 
+                '4' : comprador_id[0], 
+                '5' : seleccion[0], 
+                '6' : comprador_id[0]
+                })
+
+            return uRecibo(request, usuario_id)
+    else:
+        form = forms.CreatePago()
+
+    cursor = connection.cursor().execute("""
+    SELECT 
+        car.CARRITO_ID,
+        p.PRODUCTO_ID,
+        p.NOMBRE,
+        p.PRECIO,
+        t.TIPO,
+        pcar.CANTIDAD
+                            
+    FROM USUARIO u 
+    JOIN COMPRADOR com 
+    ON (u.USUARIO_ID = com.USUARIO_ID)
+    JOIN CARRITO car 
+    ON (com.COMPRADOR_ID = car.COMPRADOR_ID)
+    JOIN PRDCTO_CRRTO pcar 
+    ON (car.CARRITO_ID = pcar.CARRITO_ID)
+    JOIN PRODUCTO p 
+    ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
+    JOIN TIPO t 
+    ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+
+    WHERE u.USUARIO_ID = :usuario_id AND car.CARRITO_ID = (SELECT 
+                    MAX(fcar.CARRITO_ID)
+                FROM CARRITO fcar
+                WHERE fcar.COMPRADOR_ID = com.COMPRADOR_ID)
+                                         
+     """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()
+    carrito = [{
+        'carrito_id' : carrito_id,
+        'producto_id' : producto_id,
+        'nombre' : nombre ,
+        'precio' : precio,
+        'tipo' : tipo,
+        'cantidad' : cantidad
+    } for carrito_id, producto_id, nombre, precio, tipo, cantidad in resultados]
+
+    return render(request, 'shop/pago.html', {
+        'form': form, 
+        'usuario_id': usuario_id, 
+        'carrito': carrito,
+        'precioTotal' : precioTotal})
 
 def soporteRespuestas(request, usuario_id, soporte_id):
     cursor = connection.cursor().execute("""

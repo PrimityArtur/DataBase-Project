@@ -14,3 +14,9 @@
     <h3>Total: {{precioTotal}}</h3>
     
 </div>
+
+<button>
+    <a href="{% url 'pago' usuario_id carrito.0.carrito_id precioTotal %}">
+        <h2>Pagar</h2>
+    </a>
+</button>

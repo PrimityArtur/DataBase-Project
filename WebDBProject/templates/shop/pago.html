@@ -1,2 +1,36 @@
 {% include 'layouts/navbar.html' %}
 
+<h2>Total {{ precioTotal }}</h2>
+
+<h1>Productos</h1>
+
+<div>
+{% for producto in carrito %}
+    <a href="{% url 'producto' usuario_id producto.producto_id %}">
+        <h2>{{producto.nombre}}</h2>
+    </a>
+    <p>Precio: {{producto.precio}} </p>
+    <p>Tipo: {{producto.tipo}}</p>
+    <p>Cantidad: {{producto.cantidad}}</p>
+    {% endfor %}
+</div>
+
+<h1>Crear Pago</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class = "form-group"> 
+        <label for="field.id_for_label">
+            {{ field.label }}
+        </label>
+        
+        {{ field.as_widget }}
+    </div>    
+    {% endfor %}
+
+    <button>
+        Save
+    </button>
+</form>    

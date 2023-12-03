@@ -17,7 +17,7 @@ urlpatterns = [
 
 
     path('producto/<int:usuario_id>/<int:producto_id>/', views.producto, name="producto"),
-    path('pago/<int:usuario_id>', views.pago, name="pago"),
+    path('pago/<int:usuario_id>/<int:carrito_id>/<int:precioTotal>', views.pago, name="pago"),
     
 
     path('soporteRespuestas/<int:usuario_id>/<int:soporte_id>', views.soporteRespuestas, name="soporteRespuestas"),
