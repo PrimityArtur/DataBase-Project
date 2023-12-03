@@ -9,11 +9,40 @@ def index(request):
 
 
 def home(request, usuario_id=None):
+    cursor = connection.cursor().execute("""
+        SELECT 
+            p.NOMBRE,
+            p.PRECIO,
+            t.TIPO,
+            val.ESTRELLAS,
+            u.NOMBRE
 
-    return render(request, 'index.html', {'usuario_id': usuario_id})
+        FROM PRODUCTO p 
+        JOIN TIPO t 
+        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+        JOIN VALORACION val
+        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+        JOIN DESCARGA d
+        ON (p.PRODUCTO_ID = d.PRODUCTO_ID)  
+        JOIN USUARIO u
+        ON (p.PRODUCTO_ID = u.USUARIO_ID)
+        """)
+    
+    resultados = cursor.fetchall()    
+    Productos = [{'nombre': nombre, 
+            'precio': precio,
+            'tipo' : tipo,
+            'estrellas' : estrellas,
+            'vendedor' : vendedor
+            } 
+            for nombre, precio, tipo, estrellas, vendedor in resultados]
+    
+    return render(request, 'index.html', {'productos': Productos, 'usuario_id': usuario_id})
+
 
 def navBar(request, usuario_id):
     return render(request, 'layouts/navbar.html', {'usuario_id': usuario_id})
+
 
 def userPerfil(request, usuario_id):
 

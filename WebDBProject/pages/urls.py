@@ -5,7 +5,6 @@ from . import views
 urlpatterns = [
     path('', views.index, name="index"),
 
-    
     path('perfil/<int:usuario_id>', views.userPerfil, name="perfil"),   
     path('home/<int:usuario_id>', views.home, name="home"),   
     path('carrito/<int:usuario_id>', views.carrito, name="carrito"),
@@ -23,7 +22,5 @@ urlpatterns = [
     
 
     path('soporteRespuestas/<int:usuario_id>', views.soporteRespuestas, name="soporteRespuestas"),
-
-
 
 ]
