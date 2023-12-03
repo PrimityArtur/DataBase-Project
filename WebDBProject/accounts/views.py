@@ -71,8 +71,8 @@ def login(request):
                         'usuario_id': usuario_id[0]
                         })
         
-    return render(request, 'login.html', 
-                  {'form': form})
+    return render(request, 'register.html', 
+                  {'form': forms.Register()})
 
 def register(request):
     if request.method == 'GET':

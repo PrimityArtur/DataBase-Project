@@ -81,13 +81,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'xe',
-        'USER': 'USUARIO_RODRIGO',
-        'PASSWORD': 'hiromosha15',
-        'HOST': 'localhost',
+        'USER': 'USUARIO_ALEXANDER',
+        'PASSWORD': 'Elinfernal44@',
+        'HOST': '192.168.0.28',
         'PORT': '1521',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
