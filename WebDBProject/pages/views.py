@@ -87,10 +87,44 @@ def userPerfil(request, usuario_id):
 
 
 def carrito(request, usuario_id):
+    cursor = connection.cursor().execute("""
+        SELECT 
+            p.PRODUCTO_ID,
+            p.NOMBRE,
+            p.PRECIO,
+            t.TIPO
+                                
+        FROM USUARIO u 
+        JOIN COMPRADOR com 
+        ON (u.USUARIO_ID = com.USUARIO_ID)
+        JOIN CARRITO car 
+        ON (com.COMPRADOR_ID = car.COMPRADOR_ID)
+        JOIN PRDCTO_CRRTO pcar 
+        ON (car.CARRITO_ID = pcar.CARRITO_ID)
+        JOIN PRODUCTO p 
+        ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
+        JOIN TIPO t 
+        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
 
+        WHERE u.USUARIO_ID = :usuario_id AND car.CARRITO_ID = (SELECT 
+                        MAX(fcar.CARRITO_ID)
+                    FROM CARRITO fcar
+                    WHERE fcar.COMPRADOR_ID = com.COMPRADOR_ID)
+                                         
+     """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()
+    carrito = [{
+        'producto_id' : producto_id,
+        'nombre' : nombre ,
+        'precio' : precio,
+        'tipo' : tipo
+    } for producto_id, nombre, precio, tipo in resultados]
 
-
-    return render(request, 'shop/carrito.html', {'usuario_id': usuario_id})
+    return render(request, 'shop/carrito.html', {
+    'usuario_id': usuario_id,
+    'carrito': carrito
+    })
 
 
 def crearSoporte(request, usuario_id):

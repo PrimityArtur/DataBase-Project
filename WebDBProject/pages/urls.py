@@ -3,7 +3,6 @@ from . import views
 
 #urls del proyecto
 urlpatterns = [
-    path('', views.index, name="index"),
 
     path('perfil/<int:usuario_id>', views.userPerfil, name="perfil"),   
     path('home/<int:usuario_id>', views.home, name="home"),   

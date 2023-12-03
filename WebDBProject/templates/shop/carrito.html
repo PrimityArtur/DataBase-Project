@@ -1,2 +1,13 @@
 {% include 'layouts/navbar.html' %}
 
+<div>
+    {% for producto in carrito %}
+    <div>
+        <a href="{% url 'producto' usuario_id producto.producto_id %}">
+            <h2>{{producto.nombre}}</h2>
+        </a>
+        <p>Precio: {{producto.precio}} </p>
+        <p>Tipo: {{producto.tipo}}</p>
+    </div>
+    {% endfor %}
+</div>
