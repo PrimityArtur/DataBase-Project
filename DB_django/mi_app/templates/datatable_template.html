@@ -1,0 +1,378 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+    <!-- CSS para botones DataTables -->
+    <link rel="stylesheet" href="{% static 'css/buttons.dataTables.min.css' %}">
+    <!-- jQuery -->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <!-- DataTables JS -->
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <!-- DataTables Bootstrap 5 JS -->
+    <script src="{% static 'js/dataTables.bootstrap5.min.js' %}"></script>
+    <!-- Bootstrap Bundle JS (includes Popper) -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <!-- JS para botones DataTables -->
+    <script src="{% static 'js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'js/jszip.min.js' %}"></script>
+    <script src="{% static 'js/pdfmake.min.js' %}"></script>
+    <script src="{% static 'js/vfs_fonts.js' %}"></script>
+
+</head>
+<body>
+    <div class="container-fluid d-flex justify-content-center">
+        <div class="col-md-10">
+            <table id="example" class="table">
+                <thead>
+                    <tr>
+                        <th>ID Producto</th>
+                        <th>Vendedor Nombre</th>
+                        <th>Vendedor Apellido</th>
+                        <th>Producto Nombre</th>
+                        <th>Producto Precio</th>
+                        <th>Tipo</th>
+                        <th>Dimensiones Schematic</th>
+                        <th>Plugin Version</th>
+                        <th>Acciones</th>
+                        <th>Tipo_ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newProductModal" id="addProductButton">
+                    Añadir Producto
+                </button>
+                <button type="button" class="btn btn-info" id="exportButton">
+                    Exportar a Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var table;
+        $(document).ready(function() {
+                table = $('#example').DataTable({
+                "ajax": {
+                    "url": "{% url 'get_combined_data' %}",
+                    "type": "GET"
+                },
+                "columns": [
+                    { "data": "producto_id" },
+                    { "data": "vendedor_nombre" },
+                    { "data": "vendedor_apellido" },
+                    { "data": "producto_nombre" },
+                    { "data": "producto_precio" },
+                    { "data": "tipo" },
+                    { "data": "schematic_dimensiones" },
+                    { "data": "plugin_version" },
+                    { 
+                        "data": null,
+                        "render": function (data, type, row, meta) {
+                            return `
+                                <button class='btn btn-primary edit-btn' data-id='${row.producto_id}'>Editar</button>
+                                <button class='btn btn-danger delete-btn' data-id='${row.producto_id}'>Eliminar</button>
+                            `;
+                        },
+                        "orderable": false
+                    },
+                    {
+                        "data": "tipo_id"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "targets": [9],
+                        "visible": false
+                    }
+                ],
+                "order": [[1, 'asc']],
+                "dom": 'Bfrtip',
+                "buttons":[
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Exportar a Excel',
+                        autoFilter: true,
+                        className: 'btn btn-info exportButton',
+                        exportOptions:{
+                            columns: ':not(:eq(8), :eq(9))'
+                        }
+                    }
+                ] 
+            });
+
+            $(".dt-buttons").css("display", "none");
+
+            $('#exportButton').on('click', function() {
+                table.button('.buttons-excel').trigger();
+            });
+
+            // Evento click eliminar
+            $('#example tbody').on('click', '.delete-btn', function () {
+                var producto_id = $(this).data('id');
+                if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                    $.ajax({
+                        url: "/eliminar_producto_completo/" + producto_id + "/",
+                        type: 'POST',
+                        success: function(result) {
+                            table.ajax.reload();
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Ocurrió un error al eliminar el producto.');
+                        }
+                    });
+                }
+            });
+
+            // Evento click  editar
+            $('#example tbody').on('click', '.edit-btn', function () {
+                var data = table.row($(this).parents('tr')).data();
+                $('#editProductId').val(data.producto_id);
+                $('#editProductName').val(data.producto_nombre);
+                $('#editProductPrice').val(data.producto_precio);
+                $('#editTipoId').val(data.tipo_id);
+                $('#editTipo').val(data.tipo);
+
+                // versión del plugin o las dimensiones del schematic
+                if (data.tipo === 'PLUGIN') {
+                    $('#editProductExtraField').html(`
+                        <label for="editProductVersion" class="form-label">Versión del Plugin</label>
+                        <input type="text" class="form-control" id="editProductVersion" value="${data.plugin_version || ''}">
+                    `);
+                } else if (data.tipo === 'SCHEMATIC') {
+                    $('#editProductExtraField').html(`
+                        <label for="editProductDimensions" class="form-label">Dimensiones del Schematic</label>
+                        <input type="text" class="form-control" id="editProductDimensions" value="${data.schematic_dimensiones || ''}">
+                    `);
+                }
+
+                // Mostrar el modal
+                var editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                editModal.show();
+            });
+
+            // clic botón 'Añadir Producto'
+            $('#addProductButton').on('click', function() {
+                $('#newProductForm').trigger('reset');
+                var newProductModal = new bootstrap.Modal(document.getElementById('newProductModal'));
+                // Mostrar el modal
+                newProductModal.show();
+            });
+
+            $('#newProductModal').on('hidden.bs.modal', function () {
+                $('#newProductForm').trigger('reset');
+            });
+
+            $('#newProductModal').on('hide.bs.modal', function () {
+                $(".modal-backdrop").remove();
+            });
+        });
+
+        function saveProductChanges() {
+            // valores del formulario
+            var productId = $('#editProductId').val(); 
+            var productName = $('#editProductName').val();
+            var productPrice = $('#editProductPrice').val();
+            var tipo_id = $('#editTipoId').val();
+            var tipo = $('#editTipo').val();
+            var productVersionOrDimensions; // PLUGIN o SCHEMATIC
+
+            // Comprueba si es PLUGIN o SCHEMATIC
+            if ($('#editProductVersion').length) {
+                productVersionOrDimensions = $('#editProductVersion').val();
+            } else if ($('#editProductDimensions').length) {
+                productVersionOrDimensions = $('#editProductDimensions').val();
+            }
+
+            // objeto con los datos del producto para enviar
+            var productData = {
+                'id': productId,
+                'name': productName,
+                'price': productPrice,
+                'tipo_id':tipo_id,
+                'tipo':tipo,
+                'dimensiones_o_version': productVersionOrDimensions
+            };
+
+            // Envía datos al servidor 
+            $.ajax({
+                url: "/actualizar_producto/" + productId + "/", 
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(productData), 
+                success: function(response) {
+                    console.log('Respuesta del servidor:', response);
+                    $('#editProductModal').modal('hide');
+                    table.ajax.reload(null, false); 
+                    alert('Producto actualizado con éxito.');
+                },
+                error: function(xhr, status, error) {
+                    alert('Hubo un error al actualizar el producto.');
+                }
+            });
+        }
+
+        function createNewProduct() {
+
+            var vendedorId = $('#newVendedorId').val(); 
+            var productName = $('#newProductName').val(); 
+            var productDescription = $('#newProductDescription').val(); 
+            var productPrice = $('#newProductPrice').val(); 
+            var tipo = $('#productType').val();
+            var tipo_dim_ver = tipo === 'PLUGIN' ? $('#productVersion').val() : $('#productDimensions').val();
+            var version_compatible = $('#compatibleVersion').val(); 
+
+            // objeto con los datos del nuevo producto
+            var newProductData = {
+                'vendedor_id': vendedorId,
+                'nombre': productName,
+                'descripcion': productDescription,
+                'precio': productPrice,
+                'tipo': tipo,
+                'dimension_version': tipo_dim_ver,
+                'version_compatible': version_compatible
+            };
+            // envia datos al servidor
+            $.ajax({
+                url: "/insertar_producto/",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(newProductData),
+                success: function(response) {
+                    // la creación fue exitosa
+                    $('#newProductModal').modal('hide'); 
+                    $(".modal-backdrop").remove();
+                    table.ajax.reload(null, false);
+                    alert('Nuevo producto creado con éxito.');
+                },
+                error: function(xhr, status, error) {
+                    alert('Hubo un error al crear el producto.');
+                }
+            });
+        }
+
+        function alternarCamposTipo() {
+            var tipoSeleccionado = document.getElementById('productType').value;
+            var campoDimensiones = document.getElementById('dimensionsField');
+            var campoVersion = document.getElementById('versionField');
+
+            if(tipoSeleccionado === 'SCHEMATIC') {
+                campoDimensiones.style.display = '';
+                campoVersion.style.display = 'none';
+            } else if(tipoSeleccionado === 'PLUGIN') {
+                campoDimensiones.style.display = 'none';
+                campoVersion.style.display = '';
+            } else {
+                campoDimensiones.style.display = 'none';
+                campoVersion.style.display = 'none';
+            }
+        }
+
+        document.getElementById('productType').onchange = alternarCamposTipo;
+
+    </script>
+
+    <!-- <Edicion modal> -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">Editar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId">
+                        <input type="hidden" id="editTipoId">
+                        <input type="hidden" id="editTipo">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Nombre del producto</label>
+                            <input type="text" class="form-control" id="editProductName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Precio del producto</label>
+                            <input type="number" class="form-control" id="editProductPrice">
+                        </div>
+                        <div class="mb-3" id="editProductExtraField">
+                        
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProductChanges()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- <Nuevo producto modal> -->
+    <div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newProductModalLabel">Añadir Nuevo Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newProductForm">
+                        <div class="mb-3">
+                            <label for="newVendedorId" class="form-label">ID del Vendedor</label>
+                            <input type="number" class="form-control" id="newVendedorId" required min="1">
+                        <div class="mb-3">
+                            <label for="newProductName" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="newProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newProductDescription" class="form-label">Descripción del Producto</label>
+                            <textarea class="form-control" id="newProductDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newProductPrice" class="form-label">Precio del Producto</label>
+                            <input type="number" step="0.01" class="form-control" id="newProductPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productType" class="form-label">Tipo</label>
+                            <select class="form-control" id="productType" required onchange="alternarCamposTipo()">
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="SCHEMATIC">SCHEMATIC</option>
+                                <option value="PLUGIN">PLUGIN</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="dimensionsField" style="display:none;">
+                            <label for="productDimensions" class="form-label">Dimensiones</label>
+                            <input type="text" class="form-control" id="productDimensions">
+                        </div>
+                        <div class="mb-3" id="versionField" style="display:none;">
+                            <label for="productVersion" class="form-label">Versión</label>
+                            <input type="text" class="form-control" id="productVersion">
+                        </div>
+                        <div class="mb-3">
+                            <label for="compatibleVersion" class="form-label">Versión Compatible</label>
+                            <input type="text" class="form-control" id="compatibleVersion" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewProduct()">Crear Producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
