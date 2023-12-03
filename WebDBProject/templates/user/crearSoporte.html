@@ -1,1 +1,24 @@
 {% include 'layouts/navbar.html' %}
+
+<div>
+    {% include 'layouts/UserNavBar.html' %}
+</div>
+
+<h1>Crear Soporte</h1>
+<form method="POST">
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class = "form-group"> 
+        <label for="field.id_for_label">
+            {{ field.label }}
+        </label>
+        
+        {{ field.as_widget }}
+    </div>    
+    {% endfor %}
+
+    <button>
+        Save
+    </button>
+</form>    

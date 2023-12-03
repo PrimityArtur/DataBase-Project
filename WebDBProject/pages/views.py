@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render #render para ir a un html, y redirect  para redireccionar a un html
 from django.http import HttpResponse, JsonResponse
 from django.db import connection #para optener cursor y realizar consultas SQL
-# from .forms import CreateNewSoport
+from . import forms 
 
 def index(request):
     
@@ -87,11 +87,58 @@ def userPerfil(request, usuario_id):
 
 
 def carrito(request, usuario_id):
+
+
+
     return render(request, 'shop/carrito.html', {'usuario_id': usuario_id})
 
 
 def crearSoporte(request, usuario_id):
-    return render(request, 'user/crearSoporte.html', {'usuario_id': usuario_id})
+
+    if request.method == 'GET':
+        #show interface
+        form = forms.CreateNewSoport()
+    
+        return render(request, 'user/crearSoporte.html', 
+                  {'form': form, 'usuario_id': usuario_id})
+    
+    elif request.method == 'POST':
+        form = forms.CreateNewSoport(request.POST)
+        if form.is_valid():
+            mensaje = form.cleaned_data['mensaje']
+
+            cursor = connection.cursor().execute("""
+                INSERT INTO SOPORTE (MENSAJE, USUARIO_ID) 
+                VALUES (:1, :2)""", 
+                {'1': mensaje, '2': usuario_id})
+            
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    s.SOPORTE_ID,
+                    s.MENSAJE,
+                    s.FECHA
+                                                
+                FROM USUARIO u 
+                JOIN SOPORTE s 
+                ON (u.USUARIO_ID = s.USUARIO_ID)
+
+                WHERE u.USUARIO_ID = :usuario_id                  
+            """, {'usuario_id' : usuario_id})
+            
+            resultados = cursor.fetchall()
+            soportes = [{
+                'soporte_id' : soporte_id,
+                'mensaje' : mensaje,
+                'fecha' : fecha
+            } for soporte_id, mensaje, fecha in resultados]
+
+            return render(request, 'user/userSoporte.html', {
+                'usuario_id': usuario_id,
+                'soportes': soportes
+                })
+        
+    return render(request, 'user/crearSoporte.html', 
+                  {'form': form, 'usuario_id': usuario_id})
 
 
 def uRecibo(request, usuario_id):
