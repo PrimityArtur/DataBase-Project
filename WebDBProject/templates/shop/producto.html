@@ -1,1 +1,32 @@
 {% include 'layouts/navbar.html' %}
+
+{% block content %}
+<h1> {{producto.nombre}} </h1>
+{% endblock %}
+
+<div>
+    {% for product in producto %}
+    <div>
+        <p>Descripcion: {{product.descripcion}} </p>
+        <p>Precio: {{product.precio}} </p>
+        <p>Fecha de registro: {{product.fecha}} </p>
+        <p>Tipo: {{product.tipo}}</p>
+        <p>Dimensiones: {{product.dimensiones}}</p>
+        <p>version: {{product.version}}</p>
+        <p>Estrellas: {{product.estrellas}}</p>
+        <p>Descargas: {{product.descargas}}</p>
+        <p>Vendedor: {{product.vendedor}}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div>
+    <h3>Comentarios</h3>
+    {% for coment in comentarios %}
+    <div>
+        <h4>{{coment.comprador}} </h4>
+        <p>Estrellas: {{coment.estrellas}} </p>
+        <p>Comentario: {{coment.comentario}} </p>
+    </div>
+    {% endfor %}
+</div>

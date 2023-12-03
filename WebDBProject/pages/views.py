@@ -16,7 +16,7 @@ def home(request, usuario_id=None):
                 p.PRECIO,
                 t.TIPO,
                 AVG(val.ESTRELLAS) AVG_ESTRELLAS,
-                AVG(d.COMPRADOR_ID) AVG_DESCARGAS,
+                COUNT(d.COMPRADOR_ID) AVG_DESCARGAS,
                 vu.NOMBRE
 
             FROM PRODUCTO p 
@@ -110,43 +110,77 @@ def editarProducto(request, usuario_id):
 
 def producto(request, usuario_id, producto_id):
     cursor = connection.cursor().execute("""
-    SELECT 
-        p.PRODUCTO_ID,
-        p.NOMBRE,
-        p.DESCRIPCION,
-        p.PRECIO,
-        p.FECHA,
-        t.TIPO,
-        plu.VERSION,
-        sch.DIMENSIONES,                                         
-        val.ESTRELLAS,
-        vu.NOMBRE
+        SELECT 
+            p.PRODUCTO_ID,
+            p.NOMBRE,
+            p.DESCRIPCION,
+            p.PRECIO,
+            p.FECHA,
+            t.TIPO,
+            plu.VERSION,
+            sch.DIMENSIONES,                                         
+            AVG(val.ESTRELLAS),
+            COUNT(d.COMPRADOR_ID),
+            vu.NOMBRE
 
-    FROM PRODUCTO p 
-    JOIN TIPO t 
-    ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
-    JOIN PLUGIN plu 
-    ON (t.TIPO_ID = plu.TIPO_ID)
-    JOIN SCHEMATIC sch 
-    ON (t.TIPO_ID = sch.TIPO_ID)
-    JOIN VALORACION val
-    ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
-    JOIN USUARIO vu
-    ON (p.PRODUCTO_ID = vu.USUARIO_ID)
-    """)
+        FROM PRODUCTO p 
+        JOIN TIPO t 
+        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+        LEFT OUTER JOIN PLUGIN plu 
+        ON (t.TIPO_ID = plu.TIPO_ID)
+        LEFT OUTER JOIN SCHEMATIC sch 
+        ON (t.TIPO_ID = sch.TIPO_ID)
+        JOIN DESCARGA d 
+        ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
+        JOIN VALORACION val
+        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+        JOIN USUARIO vu
+        ON (p.PRODUCTO_ID = vu.USUARIO_ID)
+
+        GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.DESCRIPCION, p.PRECIO, p.FECHA, t.TIPO, plu.VERSION, sch.DIMENSIONES, vu.NOMBRE
+        HAVING p.PRODUCTO_ID = :producto_id
+    """, {'producto_id' : producto_id})
     
     resultados = cursor.fetchall()    
-    Productos = [{
+    Producto = [{
             'producto_id': producto_id, 
             'nombre': nombre, 
+            'descripcion': descripcion, 
             'precio': precio,
+            'fecha': fecha,
             'tipo' : tipo,
+            'version' : version,
+            'dimensiones' : dimensiones,
             'estrellas' : estrellas,
+            'descargas' : descargas,
             'vendedor' : vendedor
             } 
-            for producto_id, nombre, precio, tipo, estrellas, vendedor in resultados]
+            for producto_id, nombre, descripcion, precio, fecha, tipo, version, dimensiones, estrellas, descargas, vendedor in resultados]
+
+    cursor = connection.cursor().execute("""
+        SELECT 
+            cu.NOMBRE,
+            val.COMENTARIO,
+            val.ESTRELLAS
+
+        FROM PRODUCTO p 
+        JOIN VALORACION val
+        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+        JOIN USUARIO cu
+        ON (val.COMPRADOR_ID = cu.USUARIO_ID)
+
+        WHERE p.PRODUCTO_ID = :producto_id
+    """, {'producto_id' : producto_id})
     
-    return render(request, 'shop/producto.html', {'productos': Productos, 'usuario_id': usuario_id})
+    resultados = cursor.fetchall()    
+    comentarios = [{
+            'comprador': comprador, 
+            'comentario': comentario, 
+            'estrellas' : estrellas
+            } 
+            for comprador, comentario, estrellas in resultados]
+    
+    return render(request, 'shop/producto.html', {'producto': Producto, 'comentarios' : comentarios, 'usuario_id': usuario_id})
 
 
 def pago(request, usuario_id):
