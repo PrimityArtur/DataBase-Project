@@ -1,20 +1,19 @@
-<h1>REGISTER</h1>
-
-<form method="POST">
-    {% csrf_token %}
-
-    {% for field in form %}
-    <div class = "form-group"> 
-        <label for="field.id_for_label">
-            {{ field.label }}
-        </label>
-        
-        {{ field.as_widget }}
-    </div>    
-    {% endfor %}
-
-    <button>
-        Save
-    </button>
-</form>    
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
 {% include 'layouts/accountNavBar.html' %}
+
+<div class="centered-content">
+    <h1>REGISTER</h1>
+
+    <form method="POST" class="register-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field.as_widget }}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="submit-button">Register</button>
+    </form>
+</div>

@@ -1,17 +1,23 @@
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
+<!-- para el bloque que tiene base.html -->
+{% block content %}
 
-<div>
+<div class="main-content">
     {% include 'layouts/UserNavBar.html' %}
-</div>
 
-<div>
-    {% for soporte in soportes %}
-    <div>
-        <a href="{% url 'soporteRespuestas' usuario_id soporte.soporte_id %}">
-            <h3>{{soporte.mensaje}}</h3>
-        </a>
-        <p>Precio: {{soporte.fecha}} </p>
+    <div class="user-info">
+        {% for soporte in soportes %}
+            <div class="user-details">
+                <a href="{% url 'soporteRespuestas' usuario_id soporte.soporte_id %}">
+                    <h3>{{soporte.mensaje}}</h3>
+                </a>
+                <p>Fecha: {{soporte.fecha}} </p>
+            </div>
+        {% endfor %}
+        
+        {% endblock %}
     </div>
-    {% endfor %}
 </div>

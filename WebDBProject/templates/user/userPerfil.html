@@ -1,21 +1,20 @@
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
 {% include 'layouts/navbar.html' %}
 
-<!-- para el bloque que tiene base.html -->
-{% block content %}
+<div class="main-content">
 
-<div>
-    {% include 'layouts/UserNavBar.html' %}
+    {% include 'layouts/Usernavbar.html' %}
+
+    <div class="user-info">
+        {% for nombre in nombres %}
+            <div class="user-details">
+                <img src="{{nombre.foto}}" alt="Foto de perfil">
+                <h2>{{nombre.nombre}} {{nombre.apellido}}</h2>
+                <p>{{nombre.correo}}</p>
+                <p>Fecha de Registro: {{nombre.fcha_rgstro}}</p>
+                <p>Dirección: {{nombre.direccion}}</p>
+                <p>Teléfono: {{nombre.telefono}}</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
-
-{% for nombre in nombres %}
-<div>
-    <p>Foto: {{nombre.foto}}</p>
-    <p>Nombre: {{nombre.nombre}} {{nombre.apellido}}</p>
-    <p>Correo: {{nombre.correo}}</p>
-    <p>registro: {{nombre.fcha_rgstro}}</p>
-    <p>direccion: {{nombre.direccion}}</p>
-    <p>telefono: {{nombre.telefono}}</p>
-</div>
-{% endfor %}
-
-{% endblock %}

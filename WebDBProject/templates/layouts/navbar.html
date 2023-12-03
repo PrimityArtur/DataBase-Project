@@ -1,25 +1,36 @@
-<nav>
-    <ul>
-        <li>
-            <a href="{% url 'perfil' usuario_id %}">Perfil</a>
-        </li>
-        <li>
-            <a href="{% url 'login' %}">Log Out</a>
-        </li>
-        <li>
+<nav class="navbar">
+    <ul class="navbar-list">
+        <li class="navbar-item">
             <a href="{% url 'home' usuario_id %}">Home</a>
         </li>
-        <li>
+        <li class="navbar-item">
+            <a href="{% url 'perfil' usuario_id %}">Perfil</a>
+        </li>
+        <li class="navbar-item">
             <a href="{% url 'carrito' usuario_id %}">Carrito</a>
         </li>
-        <li>
-            <a href="{% url 'crearSoporte' usuario_id %}">CrearSoporte</a>
+        <li class="navbar-item">
+            <a href="{% url 'crearSoporte' usuario_id %}">Crear Soporte</a>
         </li>
-        <li>
-            <a href="{% url 'editarProducto' usuario_id %}">editarProducto</a>
+        <li class="navbar-item">
+            <a href="{% url 'editarProducto' usuario_id %}">Editar Producto</a>
+        </li>
+
+        <li class="navbar-item">
+            <a href="{% url 'login' %}">Log Out</a>
+        </li>
+        <li class="navbar-item">
+            <button class="back-button" onclick="goBack()">Retroceder</button>
         </li>
     </ul>
 </nav>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
 
 <!-- decimos que hay mas codigo siguiente -->
 {% block content %}

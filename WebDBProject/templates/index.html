@@ -1,20 +1,27 @@
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
-{% block content %}
+<!-- {% block content %}
 <h1> Welcome Home </h1>
-{% endblock %}
+{% endblock %} -->
 
-<div>
-    {% for producto in productos %}
-    <div>
-        <a href="{% url 'producto' usuario_id producto.producto_id %}">
-            <h2>{{producto.nombre}}</h2>
-        </a>
-        <p>Precio: {{producto.precio}} </p>
-        <p>Tipo: {{producto.tipo}}</p>
-        <p>Estrellas: {{producto.estrellas}}</p>
-        <p>Descargas: {{producto.descargas}}</p>
-        <p>Vendedor: {{producto.vendedor}}</p>
+<div class="container"> 
+    <h1>Welcome to Our Store</h1>
+
+    <div class="product-list">
+        {% for producto in productos %}
+            <div class="product-card">
+                <a href="{% url 'producto' usuario_id producto.producto_id %}">
+                    <h2>{{producto.nombre}}</h2>
+                </a>
+                <p class="price">Precio: {{producto.precio}}</p>
+                <p>Tipo: {{producto.tipo}}</p>
+                <p>Estrellas: {{producto.estrellas}}</p>
+                <p>Descargas: {{producto.descargas}}</p>
+                <p>Vendedor: {{producto.vendedor}}</p>
+                
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>

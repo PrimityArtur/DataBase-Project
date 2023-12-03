@@ -1,26 +1,33 @@
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
-<div>
-    {% for producto in carrito %}
-    {% if producto.producto_id %}
-    <div>
-        <a href="{% url 'producto' usuario_id producto.producto_id %}">
-            <h2>{{producto.nombre}}</h2>
-        </a>
-        <p>Precio: {{producto.precio}} </p>
-        <p>Tipo: {{producto.tipo}}</p>
-        <p>Cantidad: {{producto.cantidad}}</p>
-    </div>
-    {% endif %}
-    {% endfor %}
-    <h3>Total: {{precioTotal}}</h3>
-    
-</div>
+<div class="container"> 
+    <h1>Carrito</h1>
 
-{% if precioTotal != 0 %}
-<button>
-    <a href="{% url 'pago' usuario_id carrito.0.carrito_id precioTotal %}">
-        <h2>Pagar</h2>
-    </a>
-</button>
-{% endif %}
+    <div class="product-list">
+        {% for producto in carrito %}
+            <div class="product-card">
+                <a href="{% url 'producto' usuario_id producto.producto_id %}">
+                    <h2>{{producto.nombre}}</h2>
+                </a>
+                <p class="price">Precio: {{producto.precio}}</p>
+                <p>Tipo: {{producto.tipo}}</p>
+                <p>Cantidad: {{producto.cantidad}}</p>
+                <!-- Puedes personalizar la información que se muestra en el carrito según tus necesidades -->
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bloque para mostrar el total y el botón de pagar -->
+    <div class="checkout-section">
+        <h3>Total: {{precioTotal}}</h3>
+        {% if precioTotal != 0 %}
+        <button class="pay-button">
+            <a href="{% url 'pago' usuario_id carrito.0.carrito_id precioTotal %}">
+                <h2>Pagar</h2>
+            </a>
+        </button>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,315 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; 
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff; /* Fondo blanco para el contenido */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.product-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    background-color: #fff; /* Fondo blanco para las tarjetas */
+    transition: transform 0.3s ease; /* Transición suave al pasar el ratón */
+}
+
+.product-card:hover {
+    transform: scale(1.05); /* Efecto de escala al pasar el ratón */
+}
+
+.product-card h2 {
+    margin-bottom: 10px;
+	color: #333;
+}
+
+.price {
+    font-weight: bold;
+    color: #007bff; /* Puedes ajustar el color según tus preferencias */
+}
+
+.navbar {
+    background-color: #333;
+    overflow: hidden;
+    text-align: center; /* Añadido para centrar los elementos en el encabezado */
+}
+
+.navbar-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-item {
+    display: inline-block; /* Cambiado de float: left; */
+}
+
+.navbar-item a, .back-button {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar-item a:hover, .back-button:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.back-button {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 10px 20px; /* Some padding */
+    font-size: 16px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+}
+
+/* No es necesario clear: both; ya que no estamos utilizando floats */
+
+/* Responsive navbar */
+@media screen and (max-width: 600px) {
+    .navbar-item {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff; /* Fondo blanco para el contenido */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    display: flex;
+}
+
+.user-navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    flex: 1; /* Espacio más pequeño que la información del usuario */
+}
+
+.user-navbar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+.user-navbar a:hover {
+    background-color: #555;
+}
+
+.user-info {
+    flex: 3; /* Más espacio para la información del usuario */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.user-details {
+    text-align: center;
+    margin: 20px;
+}
+
+.user-details img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+.centered-content {
+	max-width: 800px;
+	margin: 0 auto;
+    text-align: center;
+}
+  
+.product-details {
+margin-top: 20px;
+padding: 20px;
+border: 1px solid #ccc;
+border-radius: 8px;
+background-color: #fff;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-details h2 {
+color: #333;
+}
+
+.product-details div {
+margin-top: 10px;
+}
+
+.comments-section {
+margin-top: 20px;
+padding: 20px;
+border: 1px solid #ccc;
+border-radius: 8px;
+background-color: #fff;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.comments-section h3 {
+color: #333;
+}
+
+.comment {
+margin-top: 10px;
+padding: 10px;
+border: 1px solid #eee;
+border-radius: 5px;
+background-color: #f9f9f9;
+}
+
+.comment h4 {
+color: #555;
+}
+
+.product-info-container {
+	display: flex;
+	align-items: center;
+  }
+  
+  .product-image {
+	margin-right: 20px;
+  }
+  
+.product-image img {
+	max-width: 100%;
+	height: auto;
+  }
+  
+.product-info {
+	max-width: 600px; /* Ajusta el ancho según tus necesidades */
+  }
+
+.support-form {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.submit-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+.product-item {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.payment-form {
+    max-width: 400px;
+    margin: 20px auto; /* Centrar verticalmente y aplicar márgenes superior e inferior */
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Alinear el texto a la izquierda dentro del formulario */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+.login-form {
+    margin-top: 20px;
+}
+
+.account-navbar {
+    background-color: #333;
+    overflow: hidden;
+    text-align: center; /* Añadido para centrar los elementos en el encabezado */
+}
+
+.account-navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.account-navbar li {
+    display: inline-block;
+}
+
+.account-navbar a, .back-button {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.account-navbar a:hover, .back-button:hover {
+    background-color: #ddd;
+    color: black;
+}
+@media screen and (max-width: 600px) {
+    .account-navbar li {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
+.back-button {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 10px 20px; /* Some padding */
+    font-size: 16px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+}

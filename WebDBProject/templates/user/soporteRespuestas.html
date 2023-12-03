@@ -1,31 +1,28 @@
+<link rel="stylesheet" type="text/css" href="../../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
-
-<div>
+<div class="main-content">
     {% include 'layouts/UserNavBar.html' %}
-</div>
 
-<div>
-    <h2> {{ respuestasSoporte.0.mensajeSoporte }} </h2>
-    <p> {{ respuestasSoporte.0.fechaSoporte }} </p>
+    <div class="user-info">
+        <h2>{{ respuestasSoporte.0.mensajeSoporte }}</h2>
+        <p>{{ respuestasSoporte.0.fechaSoporte }}</p>
 
-</div>
-
-<div>
-    <h3>Respuestas</h3>
-    {% for respuesta in respuestasSoporte %}
-    <div>
-        <h4>
-            = {{ respuesta.tipo }}:
-            {% if not respuesta.administrador %}
-             {{ respuesta.usuario }}
-            {% else %} 
-             {{ respuesta.administrador }}
-            {% endif %}
-        </h4>
-        <p>Mensaje: {{ respuesta.mensaje }} </p>
-        <p>fecha: {{ respuesta.fecha }} </p>
-
+        <h3>Respuestas</h3>
+        {% for respuesta in respuestasSoporte %}
+            <div class="user-details">
+                <h4>
+                    {% if not respuesta.administrador %}
+                        {{ respuesta.usuario }}
+                    {% else %} 
+                        {{ respuesta.administrador }}
+                    {% endif %}
+                </h4>
+                <p>Tipo: {{ respuesta.tipo }} </p>
+                <p>Mensaje: {{ respuesta.mensaje }} </p>
+                <p>Fecha: {{ respuesta.fecha }} </p>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>

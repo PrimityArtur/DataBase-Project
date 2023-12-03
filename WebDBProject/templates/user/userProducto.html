@@ -1,20 +1,36 @@
-{% include 'layouts/navbar.html' %}
+    <link rel="stylesheet" type="text/css" href="../static/css/main.css">
 
+    {% include 'layouts/navbar.html' %}
 
-<div>
-    {% include 'layouts/UserNavBar.html' %}
-</div>
+    <!-- para el bloque que tiene base.html -->
+    {% block content %}
 
-<div>
-    {% for producto in productos %}
-    <div>
-        <a href="{% url 'producto' usuario_id producto.producto_id %}">
-            <h2>{{producto.nombre}}</h2>
-        </a>
-        <p>Precio: {{producto.precio}} </p>
-        <p>Tipo: {{producto.tipo}}</p>
-        <p>Estrellas: {{producto.estrellas}}</p>
-        <p>Descargas: {{producto.descargas}}</p>
+    <div class="main-content">
+        {% include 'layouts/UserNavBar.html' %}
+
+        <div class="user-info">
+            {% for producto in productos %}
+            <div class="product-details">
+                <a href="{% url 'producto' usuario_id producto.producto_id %}">
+                    <h2>{{producto.nombre}}</h2>
+                </a>
+                <p>Precio: {{producto.precio}} </p>
+                <p>Tipo: {{producto.tipo}}</p>
+                <p>Estrellas: {{producto.estrellas}}</p>
+                <p>Descargas: {{producto.descargas}}</p>
+
+                <button class="edit-button" onclick="goBack()">Editar Productos</button> 
+                <!-- cambiar goback() -->
+            </div>
+            {% endfor %}
+
+        </div>
+        
+        {% endblock %}
     </div>
-    {% endfor %}
-</div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>

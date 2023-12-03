@@ -1,36 +1,37 @@
+<link rel="stylesheet" type="text/css" href="../../../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
-<h2>Total {{ precioTotal }}</h2>
+<div class="centered-content">
+    <h2>Total: {{ precioTotal }}</h2>
 
-<h1>Productos</h1>
+    <h1>Productos</h1>
 
-<div>
-{% for producto in carrito %}
-    <a href="{% url 'producto' usuario_id producto.producto_id %}">
-        <h2>{{producto.nombre}}</h2>
-    </a>
-    <p>Precio: {{producto.precio}} </p>
-    <p>Tipo: {{producto.tipo}}</p>
-    <p>Cantidad: {{producto.cantidad}}</p>
-{% endfor %}
+    <div class="product-list">
+        {% for producto in carrito %}
+            <div class="product-item">
+                <a href="{% url 'producto' usuario_id producto.producto_id %}">
+                    <h3>{{ producto.nombre }}</h3>
+                </a>
+                <p>Precio: {{ producto.precio }} </p>
+                <p>Tipo: {{ producto.tipo }}</p>
+                <p>Cantidad: {{ producto.cantidad }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h1>Crear Pago</h1>
+
+    <form method="POST" class="payment-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="submit-button">Realizar Pago</button>
+    </form>
 </div>
-
-<h1>Crear Pago</h1>
-
-<form method="POST">
-    {% csrf_token %}
-
-    {% for field in form %}
-    <div class = "form-group"> 
-        <label for="field.id_for_label">
-            {{ field.label }}
-        </label>
-        
-        {{ field.as_widget }}
-    </div>    
-    {% endfor %}
-
-    <button>
-        Save
-    </button>
-</form>    

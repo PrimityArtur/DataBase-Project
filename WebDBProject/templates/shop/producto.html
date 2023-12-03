@@ -1,33 +1,49 @@
+<link rel="stylesheet" type="text/css" href="../../../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
 {% block content %}
-<h1> {{producto.nombre}} </h1>
+  <div class="centered-content">
+    <h1>{{producto.nombre}}</h1>
+
+    <div class="product-details">
+      {% for product in producto %}
+        <div class="product-info-container">
+          <div class="product-image">
+            <img src="{{product.imagen_url}}" alt="Imagen del producto">
+          </div>
+          <div class="product-info">
+            <h2>{{product.nombre}}</h2>
+            <p>Descripcion: {{product.descripcion}} </p>
+            <p>Precio: {{product.precio}} </p>
+            <p>Fecha de registro: {{product.fecha}} </p>
+            <p>Tipo: {{product.tipo}}</p>
+            <p>Dimensiones: {{product.dimensiones}}</p>
+            <p>Version: {{product.version}}</p>
+            <p>Estrellas: {{product.estrellas}}</p>
+            <p>Descargas: {{product.descargas}}</p>
+            <p>Vendedor: {{product.vendedor}}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="comments-section">
+      <h3>Comentarios</h3>
+      {% for coment in comentarios %}
+        <div class="comment">
+          <h4>{{coment.comprador}} </h4>
+          <p>Estrellas: {{coment.estrellas}} </p>
+          <p>Comentario: {{coment.comentario}} </p>
+        </div>
+      {% endfor %}
+      <button class="add-comment-button" onclick="goBack()">Añadir Comentario</button>
+    </div>
+  </div>
+  
+  <script>
+    function goBack() {
+        window.history.back();
+    }
+  </script>
 {% endblock %}
-
-<div>
-    {% for product in producto %}
-    <h2>{{product.nombre}}</h2>
-    <div>
-        <p>Descripcion: {{product.descripcion}} </p>
-        <p>Precio: {{product.precio}} </p>
-        <p>Fecha de registro: {{product.fecha}} </p>
-        <p>Tipo: {{product.tipo}}</p>
-        <p>Dimensiones: {{product.dimensiones}}</p>
-        <p>version: {{product.version}}</p>
-        <p>Estrellas: {{product.estrellas}}</p>
-        <p>Descargas: {{product.descargas}}</p>
-        <p>Vendedor: {{product.vendedor}}</p>
-    </div>
-    {% endfor %}
-</div>
-
-<div>
-    <h3>Comentarios</h3>
-    {% for coment in comentarios %}
-    <div>
-        <h4>{{coment.comprador}} </h4>
-        <p>Estrellas: {{coment.estrellas}} </p>
-        <p>Comentario: {{coment.comentario}} </p>
-    </div>
-    {% endfor %}
-</div>

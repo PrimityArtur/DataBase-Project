@@ -1,32 +1,35 @@
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
+
 {% include 'layouts/navbar.html' %}
 
+<!-- para el bloque que tiene base.html -->
+{% block content %}
 
-<div>
+<div class="main-content">
     {% include 'layouts/UserNavBar.html' %}
-</div>
 
-<div>
-    <h1>
-        Recibos
-    </h1>
-</div>
+    <div class="user-info">
 
-<div>
-    {% for recibo in recibos %}
-    <div>
-        <h3>Recibo ID: {{ recibo.recibo_id }}</h3>
-        <p>Fecha: {{ recibo.fecha }}</p>
-        <p>Total: {{ recibo.total }}</p>
-        <p>Forma de Pago: {{ recibo.metodo_pago }}</p>
-    </div>
-    <div>
-        {% for producto in recibo.productos %}
-        <div>
-            <h4>Nombre: {{ producto.nombre }}</h4>
-            <p>Precio: {{ producto.precio }}</p>
-            <p>Cantidad: {{ producto.cantidad }}</p>
+        {% for recibo in recibos %}
+        <div class="recibo-info">
+            <h3>Recibo ID: {{ recibo.recibo_id }}</h3>
+            <p>Fecha: {{ recibo.fecha }}</p>
+            <p>Total: {{ recibo.total }}</p>
+            <p>Forma de Pago: {{ recibo.metodo_pago }}</p>
+
+            <div class="productos-info">
+                {% for producto in recibo.productos %}
+                <div class="producto">
+                    <h4>Nombre: {{ producto.nombre }}</h4>
+                    <p>Precio: {{ producto.precio }}</p>
+                    <p>Cantidad: {{ producto.cantidad }}</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
+        
         {% endfor %}
     </div>
-    {% endfor %}
+
+    {% endblock %}
 </div>

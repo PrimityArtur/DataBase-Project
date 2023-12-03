@@ -1,7 +1,6 @@
 
-<h1> Welcome </h1>
 
-<nav>
+<div class="user-navbar">
     <ul>
         <li>
             <a href="{% url 'perfil' usuario_id %}">Info</a>
@@ -16,7 +15,7 @@
             <a href="{% url 'uProducto' usuario_id %}">Productos</a>
         </li>
     </ul>
-</nav>
+</div>
 
 {% block content %}
 {% endblock %}
