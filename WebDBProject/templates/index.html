@@ -7,11 +7,14 @@
 <div>
     {% for producto in productos %}
     <div>
-        <h2>{{producto.nombre}}</h2>
-        <p>{{producto.precio}} </p>
-        <p>{{producto.tipo}}</p>
-        <p>{{producto.estrellas}}</p>
-        <p>{{producto.vendedor}}</p>
+        <a href="{% url 'producto' usuario_id producto.producto_id %}">
+            <h2>{{producto.nombre}}</h2>
+        </a>
+        <p>Precio: {{producto.precio}} </p>
+        <p>Tipo: {{producto.tipo}}</p>
+        <p>Estrellas: {{producto.estrellas}}</p>
+        <p>Descargas: {{producto.descargas}}</p>
+        <p>Vendedor: {{producto.vendedor}}</p>
     </div>
     {% endfor %}
 </div>

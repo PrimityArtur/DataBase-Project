@@ -10,32 +10,39 @@ def index(request):
 
 def home(request, usuario_id=None):
     cursor = connection.cursor().execute("""
-        SELECT 
-            p.NOMBRE,
-            p.PRECIO,
-            t.TIPO,
-            val.ESTRELLAS,
-            u.NOMBRE
+            SELECT 
+                p.PRODUCTO_ID,
+                p.NOMBRE,
+                p.PRECIO,
+                t.TIPO,
+                AVG(val.ESTRELLAS) AVG_ESTRELLAS,
+                AVG(d.COMPRADOR_ID) AVG_DESCARGAS,
+                vu.NOMBRE
 
-        FROM PRODUCTO p 
-        JOIN TIPO t 
-        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
-        JOIN VALORACION val
-        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
-        JOIN DESCARGA d
-        ON (p.PRODUCTO_ID = d.PRODUCTO_ID)  
-        JOIN USUARIO u
-        ON (p.PRODUCTO_ID = u.USUARIO_ID)
+            FROM PRODUCTO p 
+            JOIN TIPO t 
+            ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+            JOIN DESCARGA d 
+            ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
+            JOIN VALORACION val
+            ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+            JOIN USUARIO vu
+            ON (p.PRODUCTO_ID = vu.USUARIO_ID)
+
+            GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.PRECIO, t.TIPO, vu.NOMBRE
         """)
     
     resultados = cursor.fetchall()    
-    Productos = [{'nombre': nombre, 
+    Productos = [{
+            'producto_id': producto_id, 
+            'nombre': nombre, 
             'precio': precio,
             'tipo' : tipo,
             'estrellas' : estrellas,
+            'descargas' : descargas,
             'vendedor' : vendedor
             } 
-            for nombre, precio, tipo, estrellas, vendedor in resultados]
+            for producto_id, nombre, precio, tipo, estrellas, descargas, vendedor in resultados]
     
     return render(request, 'index.html', {'productos': Productos, 'usuario_id': usuario_id})
 
@@ -101,8 +108,45 @@ def editarProducto(request, usuario_id):
     return render(request, 'user/editarProducto.html', {'usuario_id': usuario_id})
 
 
-def producto(request, usuario_id):
-    return render(request, 'shop/producto.html', {'usuario_id': usuario_id})
+def producto(request, usuario_id, producto_id):
+    cursor = connection.cursor().execute("""
+    SELECT 
+        p.PRODUCTO_ID,
+        p.NOMBRE,
+        p.DESCRIPCION,
+        p.PRECIO,
+        p.FECHA,
+        t.TIPO,
+        plu.VERSION,
+        sch.DIMENSIONES,                                         
+        val.ESTRELLAS,
+        vu.NOMBRE
+
+    FROM PRODUCTO p 
+    JOIN TIPO t 
+    ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+    JOIN PLUGIN plu 
+    ON (t.TIPO_ID = plu.TIPO_ID)
+    JOIN SCHEMATIC sch 
+    ON (t.TIPO_ID = sch.TIPO_ID)
+    JOIN VALORACION val
+    ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+    JOIN USUARIO vu
+    ON (p.PRODUCTO_ID = vu.USUARIO_ID)
+    """)
+    
+    resultados = cursor.fetchall()    
+    Productos = [{
+            'producto_id': producto_id, 
+            'nombre': nombre, 
+            'precio': precio,
+            'tipo' : tipo,
+            'estrellas' : estrellas,
+            'vendedor' : vendedor
+            } 
+            for producto_id, nombre, precio, tipo, estrellas, vendedor in resultados]
+    
+    return render(request, 'shop/producto.html', {'productos': Productos, 'usuario_id': usuario_id})
 
 
 def pago(request, usuario_id):

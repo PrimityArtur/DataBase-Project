@@ -17,7 +17,7 @@ urlpatterns = [
     path('uProducto/<int:usuario_id>', views.uProducto, name="uProducto"),
 
 
-    path('producto/<int:usuario_id>', views.producto, name="producto"),
+    path('producto/<int:usuario_id>/<int:producto_id>/', views.producto, name="producto"),
     path('pago/<int:usuario_id>', views.pago, name="pago"),
     
 
