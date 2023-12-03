@@ -198,7 +198,44 @@ def uSoporte(request, usuario_id):
 
 
 def uProducto(request, usuario_id):
-    return render(request, 'user/userProducto.html', {'usuario_id': usuario_id})
+    cursor = connection.cursor().execute("""
+        SELECT 
+            p.PRODUCTO_ID,
+            p.NOMBRE,
+            p.PRECIO,
+            t.TIPO,
+            AVG(val.ESTRELLAS) AVG_ESTRELLAS,
+            COUNT(d.COMPRADOR_ID) AVG_DESCARGAS
+
+        FROM USUARIO u
+        JOIN VENDEDOR ven
+        ON (u.USUARIO_ID = ven.USUARIO_ID)
+        JOIN PRODUCTO p
+        ON (ven.VENDEDOR_ID = p.VENDEDOR_ID)
+        JOIN TIPO t 
+        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+        JOIN DESCARGA d 
+        ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
+        JOIN VALORACION val
+        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+
+        WHERE u.USUARIO_ID = :usuario_id
+        GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.PRECIO, t.TIPO
+            
+    """, {'usuario_id' : usuario_id})
+    
+    resultados = cursor.fetchall()    
+    Productos = [{
+            'producto_id': producto_id, 
+            'nombre': nombre, 
+            'precio': precio,
+            'tipo' : tipo,
+            'estrellas' : estrellas,
+            'descargas' : descargas,
+            } 
+            for producto_id, nombre, precio, tipo, estrellas, descargas in resultados]
+    
+    return render(request, 'user/userProducto.html', {'productos': Productos, 'usuario_id': usuario_id})
 
 
 def editarProducto(request, usuario_id):

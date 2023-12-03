@@ -4,3 +4,17 @@
 <div>
     {% include 'layouts/UserNavBar.html' %}
 </div>
+
+<div>
+    {% for producto in productos %}
+    <div>
+        <a href="{% url 'producto' usuario_id producto.producto_id %}">
+            <h2>{{producto.nombre}}</h2>
+        </a>
+        <p>Precio: {{producto.precio}} </p>
+        <p>Tipo: {{producto.tipo}}</p>
+        <p>Estrellas: {{producto.estrellas}}</p>
+        <p>Descargas: {{producto.descargas}}</p>
+    </div>
+    {% endfor %}
+</div>
