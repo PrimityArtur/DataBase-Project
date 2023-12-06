@@ -44,6 +44,7 @@ body {
     background-color: #333;
     overflow: hidden;
     text-align: center; /* Añadido para centrar los elementos en el encabezado */
+    display: block;
 }
 
 .navbar-list {

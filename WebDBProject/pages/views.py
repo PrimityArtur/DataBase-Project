@@ -22,15 +22,15 @@ def home(request, usuario_id=None):
             FROM PRODUCTO p 
             JOIN TIPO t 
             ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
-            JOIN DESCARGA d 
+            LEFT OUTER JOIN DESCARGA d 
             ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
-            JOIN VALORACION val
+            LEFT OUTER JOIN VALORACION val
             ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
             JOIN VENDEDOR ven
             ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
             JOIN USUARIO vu
             ON (ven.USUARIO_ID = vu.USUARIO_ID)
-
+                                         
             GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.PRECIO, t.TIPO, vu.NOMBRE
         """)
     
@@ -64,7 +64,8 @@ def userPerfil(request, usuario_id):
             p.DIRECCION,
             p.TELEFONO,
             p.FOTO
-        FROM USUARIO u JOIN PERFIL p 
+        FROM USUARIO u 
+        LEFT OUTER JOIN PERFIL p 
         ON (u.USUARIO_ID = p.USUARIO_ID)
         WHERE u.USUARIO_ID = :usuario_id       
         """, {'usuario_id': usuario_id})
@@ -305,9 +306,9 @@ def uProducto(request, usuario_id):
         ON (ven.VENDEDOR_ID = p.VENDEDOR_ID)
         JOIN TIPO t 
         ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
-        JOIN DESCARGA d 
+        LEFT OUTER JOIN DESCARGA d 
         ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
-        JOIN VALORACION val
+        LEFT OUTER JOIN VALORACION val
         ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
 
         WHERE u.USUARIO_ID = :usuario_id
@@ -355,9 +356,9 @@ def producto(request, usuario_id, producto_id):
         ON (t.TIPO_ID = plu.TIPO_ID)
         LEFT OUTER JOIN SCHEMATIC sch 
         ON (t.TIPO_ID = sch.TIPO_ID)
-        JOIN DESCARGA d 
+        LEFT OUTER JOIN DESCARGA d 
         ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
-        JOIN VALORACION val
+        LEFT OUTER JOIN VALORACION val
         ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
         JOIN VENDEDOR ven
         ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
@@ -391,7 +392,7 @@ def producto(request, usuario_id, producto_id):
             val.ESTRELLAS
 
         FROM PRODUCTO p 
-        JOIN VALORACION val
+        LEFT OUTER JOIN VALORACION val
         ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
         JOIN COMPRADOR com
         ON (val.COMPRADOR_ID = com.COMPRADOR_ID)
@@ -503,7 +504,7 @@ def pago(request, usuario_id, carrito_id, precioTotal):
     ON (car.CARRITO_ID = pcar.CARRITO_ID)
     JOIN PRODUCTO p 
     ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
-    JOIN TIPO t 
+    LEFT OUTER JOIN TIPO t 
     ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
 
     WHERE u.USUARIO_ID = :usuario_id AND car.CARRITO_ID = (SELECT 

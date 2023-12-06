@@ -1,4 +1,6 @@
+
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +13,8 @@
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
     <!-- CSS para botones DataTables -->
     <link rel="stylesheet" href="{% static 'css/buttons.dataTables.min.css' %}">
+    <!-- css para navBar -->
+    <link rel="stylesheet" type="text/css" href="../../../static/css/main.css">
     <!-- jQuery -->
     <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
     <!-- DataTables JS -->
@@ -25,9 +29,10 @@
     <script src="{% static 'js/jszip.min.js' %}"></script>
     <script src="{% static 'js/pdfmake.min.js' %}"></script>
     <script src="{% static 'js/vfs_fonts.js' %}"></script>
-
 </head>
 <body>
+    {% include 'layouts/navbar.html' %}
+
     <div class="container-fluid d-flex justify-content-center">
         <div class="col-md-10">
             <table id="example" class="table">

@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('', include('pages.urls')),
+    path('', include('mi_app.urls')),
 ]

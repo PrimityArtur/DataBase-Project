@@ -63,8 +63,8 @@ def get_combined_data(request):
         #print(data)
         return JsonResponse({"data": data}, safe=False)  
 
-def show_datatable(request):
-    return render(request, 'datatable_template.html')
+def show_datatable(request, usuario_id = None):
+    return render(request, 'datatable_template.html', {'usuario_id': usuario_id})
 
 @csrf_exempt
 def eliminar_producto_completo(request, producto_id):
