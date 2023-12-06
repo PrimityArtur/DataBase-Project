@@ -9,21 +9,23 @@
     {% include 'layouts/UserNavBar.html' %}
 
     <div class="user-info">
-
+        
         {% for recibo in recibos %}
-        <div class="recibo-info">
+        <div class="recibo-info product-card">
             <h3>Recibo ID: {{ recibo.recibo_id }}</h3>
             <p>Fecha: {{ recibo.fecha }}</p>
             <p>Total: {{ recibo.total }}</p>
             <p>Forma de Pago: {{ recibo.metodo_pago }}</p>
-
+            
             <div class="productos-info">
                 {% for producto in recibo.productos %}
-                <div class="producto">
-                    <h4>Nombre: {{ producto.nombre }}</h4>
-                    <p>Precio: {{ producto.precio }}</p>
-                    <p>Cantidad: {{ producto.cantidad }}</p>
-                </div>
+                <li>
+                    <div class="producto">
+                        <h4>Nombre: {{ producto.nombre }}</h4>
+                        <p>Precio: {{ producto.precio }}</p>
+                        <p>Cantidad: {{ producto.cantidad }}</p>
+                    </div>
+                </li>
                 {% endfor %}
             </div>
         </div>

@@ -353,8 +353,8 @@ def producto(request, usuario_id, producto_id):
                 WHERE c.USUARIO_ID = :usuario_id
                     AND  car.CARRITO_ID = (SELECT 
                                             MAX(CARRITO_ID) 
-                                            FROM CARRITO 
-                                            WHERE USUARIO_ID = :usuario_id)""", 
+                                            FROM CARRITO car1 
+                                            WHERE car1.comprador_ID = c.COMPRADOR_ID)""", 
 
                 {'usuario_id': usuario_id})
             
