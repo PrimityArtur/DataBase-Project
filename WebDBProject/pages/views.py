@@ -3,11 +3,6 @@ from django.http import HttpResponse, JsonResponse
 from django.db import connection #para optener cursor y realizar consultas SQL
 from . import forms 
 
-def index(request):
-    
-    return render(request, 'index.html')
-
-
 def home(request, usuario_id=None):
     cursor = connection.cursor().execute("""
             SELECT 
