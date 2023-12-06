@@ -88,6 +88,7 @@ def userPerfil(request, usuario_id):
 
 
 def carrito(request, usuario_id):
+
     cursor = connection.cursor().execute("""
         SELECT 
             car.CARRITO_ID,
@@ -234,9 +235,9 @@ def uRecibo(request, usuario_id):
         JOIN PRODUCTO p 
         ON (pcar.PRODUCTO_ID = p.PRODUCTO_ID)
         JOIN RECIBO r 
-        ON (com.COMPRADOR_ID = r.COMPRADOR_ID)
-
+        ON (car.CARRITO_ID = r.CARRITO_ID)
         WHERE u.USUARIO_ID = :usuario_id
+
                                          
      """, {'usuario_id' : usuario_id})
     
@@ -335,86 +336,156 @@ def editarProducto(request, usuario_id):
 
 
 def producto(request, usuario_id, producto_id):
-    cursor = connection.cursor().execute("""
-        SELECT 
-            p.PRODUCTO_ID,
-            p.NOMBRE,
-            p.DESCRIPCION,
-            p.PRECIO,
-            p.FECHA,
-            t.TIPO,
-            plu.VERSION,
-            sch.DIMENSIONES,                                         
-            AVG(val.ESTRELLAS),
-            COUNT(d.COMPRADOR_ID),
-            vu.NOMBRE
 
-        FROM PRODUCTO p 
-        JOIN TIPO t 
-        ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
-        LEFT OUTER JOIN PLUGIN plu 
-        ON (t.TIPO_ID = plu.TIPO_ID)
-        LEFT OUTER JOIN SCHEMATIC sch 
-        ON (t.TIPO_ID = sch.TIPO_ID)
-        LEFT OUTER JOIN DESCARGA d 
-        ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
-        LEFT OUTER JOIN VALORACION val
-        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
-        JOIN VENDEDOR ven
-        ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
-        JOIN USUARIO vu
-        ON (ven.USUARIO_ID = vu.USUARIO_ID)
+    if request.method == 'POST':
+        form = forms.AnadirCarritoForm(request.POST)
+        if form.is_valid():
+            cantidad_producto = form.cleaned_data['cantidad_producto']
 
-        GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.DESCRIPCION, p.PRECIO, p.FECHA, t.TIPO, plu.VERSION, sch.DIMENSIONES, vu.NOMBRE
-        HAVING p.PRODUCTO_ID = :producto_id
-    """, {'producto_id' : producto_id})
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    car.CARRITO_ID,
+                    c.COMPRADOR_ID,
+                    car.PRECIO_TOTAL
+                FROM COMPRADOR c JOIN CARRITO car
+                ON c.COMPRADOR_ID = car.COMPRADOR_ID
+                                                 
+                WHERE c.USUARIO_ID = :usuario_id
+                    AND  car.CARRITO_ID = (SELECT 
+                                            MAX(CARRITO_ID) 
+                                            FROM CARRITO 
+                                            WHERE USUARIO_ID = :usuario_id)""", 
+
+                {'usuario_id': usuario_id})
+            
+            resultados = cursor.fetchall()
+            comprador = [{
+                'carrito_id' : carrito_id,
+                'comprador_id' : comprador_id,
+                'precio_total' : precio_total
+            } for carrito_id, comprador_id, precio_total  in resultados]
+
+            cursor = connection.cursor().execute("""
+                SELECT 
+                    VENDEDOR_ID,
+                    PRECIO
+                FROM PRODUCTO
+                WHERE PRODUCTO_ID = :producto_id""", 
+
+                {'producto_id': producto_id})
+            
+            resultados = cursor.fetchall()
+            vendedor = [{
+                'vendedor_id' : vendedor_id,
+                'precio' : precio
+            } for vendedor_id, precio  in resultados]
+
+            connection.cursor().execute("""
+                INSERT INTO PRDCTO_CRRTO (CARRITO_ID, PRODUCTO_ID, CANTIDAD, CARRITO_COMPRADOR_ID, PRODUCTO_VENDEDOR_ID) 
+                VALUES (:1, :2, :3, :4, :5)""", 
+                {'1': comprador[0]['carrito_id'], 
+                 '2': producto_id, 
+                 '3' : cantidad_producto, 
+                 '4' : comprador[0]['comprador_id'],
+                 '5' : vendedor[0]['vendedor_id']})
+            
+            connection.cursor().execute("""
+                UPDATE CARRITO 
+                SET PRECIO_TOTAL = (SELECT 
+                                        PRECIO_TOTAL + :2 
+                                    FROM CARRITO 
+                                    WHERE CARRITO_ID = :1)
+                WHERE CARRITO_ID = :1""", {
+                    '1': comprador[0]['carrito_id'],
+                    '2': (vendedor[0]['precio']*cantidad_producto)
+                 })
+
+            return redirect('carrito', usuario_id)
     
-    resultados = cursor.fetchall()    
-    Producto = [{
-            'producto_id': producto_id, 
-            'nombre': nombre, 
-            'descripcion': descripcion, 
-            'precio': precio,
-            'fecha': fecha,
-            'tipo' : tipo,
-            'version' : version,
-            'dimensiones' : dimensiones,
-            'estrellas' : estrellas,
-            'descargas' : descargas,
-            'vendedor' : vendedor
-            } 
-            for producto_id, nombre, descripcion, precio, fecha, tipo, version, dimensiones, estrellas, descargas, vendedor in resultados]
-
-    cursor = connection.cursor().execute("""
-        SELECT 
-            cu.NOMBRE,
-            val.COMENTARIO,
-            val.ESTRELLAS
-
-        FROM PRODUCTO p 
-        LEFT OUTER JOIN VALORACION val
-        ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
-        JOIN COMPRADOR com
-        ON (val.COMPRADOR_ID = com.COMPRADOR_ID)
-        JOIN USUARIO cu
-        ON (com.USUARIO_ID = cu.USUARIO_ID)
-
-        WHERE p.PRODUCTO_ID = :producto_id
-    """, {'producto_id' : producto_id})
+    else:
+        form = forms.AnadirCarritoForm()
     
-    resultados = cursor.fetchall()    
-    comentarios = [{
-            'comprador': comprador, 
-            'comentario': comentario, 
-            'estrellas' : estrellas
-            } 
-            for comprador, comentario, estrellas in resultados]
-    
-    return render(request, 'shop/producto.html', {
-        'producto': Producto, 
-        'comentarios' : comentarios, 
-        'usuario_id': usuario_id
-        })
+        cursor = connection.cursor().execute("""
+            SELECT 
+                p.PRODUCTO_ID,
+                p.NOMBRE,
+                p.DESCRIPCION,
+                p.PRECIO,
+                p.FECHA,
+                t.TIPO,
+                plu.VERSION,
+                sch.DIMENSIONES,                                         
+                AVG(val.ESTRELLAS),
+                COUNT(d.COMPRADOR_ID),
+                vu.NOMBRE
+
+            FROM PRODUCTO p 
+            JOIN TIPO t 
+            ON (p.PRODUCTO_ID = t.PRODUCTO_ID)
+            LEFT OUTER JOIN PLUGIN plu 
+            ON (t.TIPO_ID = plu.TIPO_ID)
+            LEFT OUTER JOIN SCHEMATIC sch 
+            ON (t.TIPO_ID = sch.TIPO_ID)
+            LEFT OUTER JOIN DESCARGA d 
+            ON (p.PRODUCTO_ID = d.PRODUCTO_ID)
+            LEFT OUTER JOIN VALORACION val
+            ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+            JOIN VENDEDOR ven
+            ON (p.VENDEDOR_ID = ven.VENDEDOR_ID)
+            JOIN USUARIO vu
+            ON (ven.USUARIO_ID = vu.USUARIO_ID)
+
+            GROUP BY p.PRODUCTO_ID, p.NOMBRE, p.DESCRIPCION, p.PRECIO, p.FECHA, t.TIPO, plu.VERSION, sch.DIMENSIONES, vu.NOMBRE
+            HAVING p.PRODUCTO_ID = :producto_id
+        """, {'producto_id' : producto_id})
+        
+        resultados = cursor.fetchall()    
+        Producto = [{
+                'producto_id': producto_id, 
+                'nombre': nombre, 
+                'descripcion': descripcion, 
+                'precio': precio,
+                'fecha': fecha,
+                'tipo' : tipo,
+                'version' : version,
+                'dimensiones' : dimensiones,
+                'estrellas' : estrellas,
+                'descargas' : descargas,
+                'vendedor' : vendedor
+                } 
+                for producto_id, nombre, descripcion, precio, fecha, tipo, version, dimensiones, estrellas, descargas, vendedor in resultados]
+
+        cursor = connection.cursor().execute("""
+            SELECT 
+                cu.NOMBRE,
+                val.COMENTARIO,
+                val.ESTRELLAS
+
+            FROM PRODUCTO p 
+            LEFT OUTER JOIN VALORACION val
+            ON (p.PRODUCTO_ID = val.PRODUCTO_ID)
+            JOIN COMPRADOR com
+            ON (val.COMPRADOR_ID = com.COMPRADOR_ID)
+            JOIN USUARIO cu
+            ON (com.USUARIO_ID = cu.USUARIO_ID)
+
+            WHERE p.PRODUCTO_ID = :producto_id
+        """, {'producto_id' : producto_id})
+        
+        resultados = cursor.fetchall()    
+        comentarios = [{
+                'comprador': comprador, 
+                'comentario': comentario, 
+                'estrellas' : estrellas
+                } 
+                for comprador, comentario, estrellas in resultados]
+        
+        return render(request, 'shop/producto.html', {
+            'form': form, 
+            'producto': Producto, 
+            'comentarios' : comentarios, 
+            'usuario_id': usuario_id
+            })
 
 
 def pago(request, usuario_id, carrito_id, precioTotal):
@@ -482,7 +553,7 @@ def pago(request, usuario_id, carrito_id, precioTotal):
                 '2' : 0
                 })
             
-            return uRecibo(request, usuario_id)
+            return redirect('uRecibo', usuario_id)
     else:
         form = forms.CreatePago()
 
@@ -544,7 +615,7 @@ def soporteRespuestas(request, usuario_id, soporte_id):
         FROM USUARIO u 
         JOIN SOPORTE s 
         ON (u.USUARIO_ID = s.USUARIO_ID)
-        JOIN RESPUESTA res 
+        LEFT OUTER JOIN RESPUESTA res 
         ON (s.SOPORTE_ID = res.SOPORTE_ID)
         LEfT OUTER JOIN ADMINISTRADOR ad 
         ON (res.ADMINISTRADOR_ID = ad.ADMINISTRADOR_ID)

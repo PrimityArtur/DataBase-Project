@@ -3,6 +3,7 @@ from django import forms
 class CreateNewSoport(forms.Form):
     mensaje = forms.CharField(label='descripcion del soporte',widget=forms.Textarea)
 
+
 class CreatePago(forms.Form):
     OPCIONES = (
         ('Efectivo', 'Efectivo'),
@@ -18,4 +19,6 @@ class CreatePago(forms.Form):
         label="Elige una opción"
     )
 
-    
+
+class AnadirCarritoForm(forms.Form):
+    cantidad_producto = forms.IntegerField(min_value=1, label='Cantidad')

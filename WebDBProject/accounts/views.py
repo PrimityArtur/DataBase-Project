@@ -139,6 +139,21 @@ def register(request):
                         '1' : usuario_id[0]
                     })
                 
+                cursor = connection.cursor().execute("""
+                        SELECT
+                            COMPRADOR_ID
+                        FROM COMPRADOR 
+                        WHERE USUARIO_ID = :1   
+                        """, 
+                        {'1': usuario_id[0]})
+                comprador_id = cursor.fetchone()
+
+                connection.cursor().execute("""
+                        INSERT INTO CARRITO(COMPRADOR_ID,PRECIO_TOTAL) VALUES (:1, 0)
+                    """, {
+                        '1' : comprador_id[0]
+                    })
+                
                 connection.cursor().execute("""
                         INSERT INTO VENDEDOR(USUARIO_ID) VALUES (:1)
                     """, {

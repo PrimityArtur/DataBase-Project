@@ -19,8 +19,6 @@
                 <p>Estrellas: {{producto.estrellas}}</p>
                 <p>Descargas: {{producto.descargas}}</p>
 
-                <button class="edit-button" onclick="goBack()">Editar Productos</button> 
-                <!-- cambiar goback() -->
             </div>
             {% endfor %}
 
@@ -28,9 +26,3 @@
         
         {% endblock %}
     </div>
-
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>

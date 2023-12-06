@@ -24,6 +24,20 @@
             <p>Descargas: {{product.descargas}}</p>
             <p>Vendedor: {{product.vendedor}}</p>
           </div>
+
+          <form method="POST" >
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+
+            <button class="add-comment-button" type="submit">Añadir al carrito</button>
+          </form>
+          
         </div>
       {% endfor %}
     </div>

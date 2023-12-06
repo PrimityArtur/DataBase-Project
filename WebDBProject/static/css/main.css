@@ -121,7 +121,7 @@ body {
 .user-info {
     flex: 3; /* Más espacio para la información del usuario */
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
 }
@@ -139,7 +139,7 @@ body {
     margin-bottom: 10px;
 }
 .centered-content {
-	max-width: 800px;
+	max-width: 50%;
 	margin: 0 auto;
     text-align: center;
 }

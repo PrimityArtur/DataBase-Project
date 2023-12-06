@@ -12,6 +12,7 @@
         <h3>Respuestas</h3>
         {% for respuesta in respuestasSoporte %}
             <div class="user-details">
+                {% if respuesta.tipo %}
                 <h4>
                     {% if not respuesta.administrador %}
                         {{ respuesta.usuario }}
@@ -22,6 +23,7 @@
                 <p>Tipo: {{ respuesta.tipo }} </p>
                 <p>Mensaje: {{ respuesta.mensaje }} </p>
                 <p>Fecha: {{ respuesta.fecha }} </p>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
